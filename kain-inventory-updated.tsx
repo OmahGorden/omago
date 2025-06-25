@@ -1,15 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Calendar, Plus, Package, BarChart3, Search, Filter, Download, Upload, Settings, Home } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
-const KainInventoryApp = () => {
+const App = () => {
   const [transactions, setTransactions] = useState([]);
-  const [appSettings, setAppSettings] = useState({
-    appName: 'Omah Gorden',
-    subtitle: 'Sistem Inventory Kain',
-    logo: '🏠'
-  });
-  const [showSettings, setShowSettings] = useState(false);
   const [formData, setFormData] = useState({
     tanggal: new Date().toISOString().split('T')[0],
     nama: '',
@@ -25,13 +19,13 @@ const KainInventoryApp = () => {
   const [filterKain, setFilterKain] = useState('ALL');
   const [isNewKain, setIsNewKain] = useState(true);
 
-  // Dapatkan daftar nama kain yang unik
+  // Get unique fabric names
   const getUniqueKainNames = () => {
     const names = transactions.map(t => t.nama);
     return [...new Set(names)].sort();
   };
 
-  // Hitung sisa stok per jenis kain
+  // Calculate stock per fabric type
   const calculateStock = () => {
     const stockMap = {};
     
@@ -58,7 +52,7 @@ const KainInventoryApp = () => {
     return Object.values(stockMap);
   };
 
-  // Hitung sisa kain untuk setiap transaksi
+  // Calculate remaining fabric for each transaction
   const calculateSisaKain = (currentIndex) => {
     const currentTransaction = transactions[currentIndex];
     const namaKain = currentTransaction.nama.toLowerCase();
@@ -77,7 +71,7 @@ const KainInventoryApp = () => {
     return sisa;
   };
 
-  // Export ke Excel
+  // Export to Excel
   const exportToExcel = () => {
     const exportData = transactions.map((transaction, index) => ({
       No: index + 1,
@@ -94,7 +88,7 @@ const KainInventoryApp = () => {
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Transaksi Kain");
     
-    // Buat sheet ringkasan stok
+    // Create stock summary sheet
     const stockData = calculateStock();
     const stockExportData = stockData.map((stock, index) => ({
       No: index + 1,
@@ -111,7 +105,7 @@ const KainInventoryApp = () => {
     XLSX.writeFile(wb, fileName);
   };
 
-  // Import dari Excel
+  // Import from Excel
   const importFromExcel = (event) => {
     const file = event.target.files[0];
     if (!file) return;
@@ -124,7 +118,7 @@ const KainInventoryApp = () => {
         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
         
-        // Convert imported data ke format yang sesuai
+        // Convert imported data to appropriate format
         const importedTransactions = jsonData.map((row, index) => ({
           id: Date.now() + index,
           tanggal: row.Tanggal || new Date().toISOString().split('T')[0],
@@ -191,7 +185,7 @@ const KainInventoryApp = () => {
   const stockData = calculateStock();
   const uniqueKainNames = getUniqueKainNames();
 
-  // Hitung sisa stok untuk kain yang difilter
+  // Calculate filtered stock info
   const getFilteredStockInfo = () => {
     if (filterKain === 'ALL') return null;
     
@@ -599,4 +593,4 @@ const KainInventoryApp = () => {
   );
 };
 
-export default KainInventoryApp;
+export default App;
